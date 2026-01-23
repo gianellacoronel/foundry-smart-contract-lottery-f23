@@ -38,7 +38,16 @@ contract Raffle is VRFConsumerBaseV2Plus{
     // It's good practice to set contract's name as as prefix
     error Raffle__SendMoreToEnterRaffle();
     error Raffle__TransferFailed();
+    error Raffle__RaffleNotOpen();
 
+    /* Type Declarations */
+    /* Enum */
+    enum RaffleState {
+        OPEN,           // 0
+        CALCULATING     // 1
+    }
+
+    /* State Variables */
     uint16 private constant REQUEST_CONFIRMATIONS = 3;
     uint32 private constant NUM_WORDS = 1;
     uint256 private immutable i_entranceFee;
@@ -50,6 +59,7 @@ contract Raffle is VRFConsumerBaseV2Plus{
     address payable[] private s_players;
     uint256 private s_lastTimeStamp;
     address private s_recentWinner;
+    RaffleState private s_raffleState;
 
     /* Events */
     event RaffleEntered(address indexed player);
@@ -62,6 +72,7 @@ contract Raffle is VRFConsumerBaseV2Plus{
         i_keyHash = gasLane;
         i_subscriptionId = subscriptionId;
         i_callbackGasLimit = callbackGasLimit;
+        s_raffleState = RaffleState.OPEN; // = RaffleState(0);
     }
 
     function enterRaffle() external payable{
@@ -75,6 +86,9 @@ contract Raffle is VRFConsumerBaseV2Plus{
         // It's more efficient gas
         if (msg.value < i_entranceFee){
             revert Raffle__SendMoreToEnterRaffle();
+        }
+        if (s_raffleState != RaffleState.OPEN){
+            revert Raffle__RaffleNotOpen();
         }
         s_players.push(payable(msg.sender));
 
@@ -97,6 +111,9 @@ contract Raffle is VRFConsumerBaseV2Plus{
         if((block.timestamp - s_lastTimeStamp) > i_interval){
             revert();
         }
+
+        s_raffleState = RaffleState.CALCULATING;
+
         // Get our random number
         // 1. Request RNG (Random Number Generator)
         // 2. Get RNG
@@ -124,6 +141,7 @@ contract Raffle is VRFConsumerBaseV2Plus{
         uint256 indexOfWinner = randomWords[0] % s_players.length;
         address payable recentWinner = s_players[indexOfWinner];
         s_recentWinner = recentWinner;
+        s_raffleState = RaffleState.OPEN;
         // Method to pay winner
         (bool success,) = recentWinner.call{value: address(this).balance}("");
         if(!success){
