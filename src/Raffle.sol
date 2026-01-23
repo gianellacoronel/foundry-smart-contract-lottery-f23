@@ -32,13 +32,29 @@ pragma solidity 0.8.19;
 * @dev Implements Chainlink VRFv2.5
 */
 contract Raffle {
+    /* Errors */
+    // It's good practice to set contract's name as as prefix
+    error Raffle__SendMoreToEnterRaffle();
+
     uint256 private immutable i_entranceFee;
 
     constructor(uint256 entranceFee){
         i_entranceFee = entranceFee;
     }
 
-    function enterRaffle() public {}
+    function enterRaffle() public payable{
+        // We comment this because strings are expensive (No gas efficient), so instead we will use Custom Errors
+        // require(msg.value >= i_entranceFee, "Not enough ETH sent!");
+
+        // This one works with specific version of Solidity and specific compiler, and it's less efficient gas
+        // require(msg.value >= i_entranceFee, SendMoreToEnterRaffle());
+
+        // Error revert called
+        // It's more efficient gas
+        if (msg.value < i_entranceFee){
+            revert Raffle__SendMoreToEnterRaffle();
+        }
+    }
 
     function pickWinner() public {}
 
