@@ -44,6 +44,10 @@ contract HelperConfig is CodeConstants, Script {
         }
     }
 
+    function getConfig() public returns(NetworkConfig memory){
+        return getConfigByChainId(block.chainid);
+    }
+
     function getSepoliaEthConfig() public pure returns (NetworkConfig memory){
         return NetworkConfig({entranceFee: 0.01 ether //10000000000000000
             ,interval: 30 // 30 seconds
