@@ -101,15 +101,40 @@ contract Raffle is VRFConsumerBaseV2Plus{
         emit RaffleEntered(msg.sender);
     }
 
+    // When should the winner be picked?
+    /**
+    * @dev This is the function that the Chainlink nodes will call to see if the lottery is ready to have a winner picked.
+    * The following should be true in oreder for upkeepNeeded to be true:
+    * 1. The time interval has passed between raffle runs
+    * 2. The lottery is open
+    * 3. The contract has ETH (has players)
+    * 4. Implicitly, your subscription has LINK
+    * @param - ignored
+    * @return upkeepNeeded - true if it's time to restart the lottery
+    * @return - ignored
+    */
+    function checkUpkeep(bytes memory /*checkData*/)public view returns(bool upkeepNeeded, bytes memory /* performData */){
+        // 1.
+        bool timeHasPassed = ((block.timestamp - s_lastTimeStamp) >= i_interval);
+        bool isOpen = s_raffleState == RaffleState.OPEN;
+        //2.
+        bool hasBalance = address(this).balance > 0;
+        bool hasPLayers = s_players.length > 0;
+
+        upkeepNeeded = timeHasPassed && isOpen && hasBalance && hasPLayers;
+        return (upkeepNeeded, hex"");
+    }
+
     /*
     1. Get a random number
     2. Use random number to pick a player
     3. Be automatically called
     */
-    function pickWinner() external {
+    function performUpkeep(bytes calldata /* performData */) external {
         // check to see if enough time has passed
         // 1000 - 900 = 100, 50
-        if((block.timestamp - s_lastTimeStamp) > i_interval){
+        (bool upkeepNeeded, ) = checkUpkeep("");
+        if(!upkeepNeeded){
             revert();
         }
 
