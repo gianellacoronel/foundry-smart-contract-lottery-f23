@@ -39,6 +39,7 @@ contract Raffle is VRFConsumerBaseV2Plus{
     error Raffle__SendMoreToEnterRaffle();
     error Raffle__TransferFailed();
     error Raffle__RaffleNotOpen();
+    error Raffle__UpkeepNotNeeded(uint256 balrnce, uint256 playersLength, uint256 raffleState);
 
     /* Type Declarations */
     /* Enum */
@@ -135,7 +136,7 @@ contract Raffle is VRFConsumerBaseV2Plus{
         // 1000 - 900 = 100, 50
         (bool upkeepNeeded, ) = checkUpkeep("");
         if(!upkeepNeeded){
-            revert();
+            revert Raffle__UpkeepNotNeeded(address(this).balance, s_players.length, uint256(s_raffleState));
         }
 
         s_raffleState = RaffleState.CALCULATING;
@@ -143,7 +144,7 @@ contract Raffle is VRFConsumerBaseV2Plus{
         // Get our random number
         // 1. Request RNG (Random Number Generator)
         // 2. Get RNG
-        uint256 requestId = s_vrfCoordinator.requestRandomWords(
+        s_vrfCoordinator.requestRandomWords(
           VRFV2PlusClient.RandomWordsRequest({
                     keyHash: i_keyHash,
                     subId: i_subscriptionId,
@@ -159,7 +160,7 @@ contract Raffle is VRFConsumerBaseV2Plus{
     }
 
     // CEI: Checks, Effects, Interactions Pattern
-    function fulfillRandomWords(uint256 requestId, uint256[] calldata randomWords) internal override {
+    function fulfillRandomWords(uint256 /* requestId */, uint256[] calldata randomWords) internal override {
         /* Checks */
         // require(...)
         // conditionals
