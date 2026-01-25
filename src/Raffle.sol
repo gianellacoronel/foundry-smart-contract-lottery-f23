@@ -133,11 +133,19 @@ contract Raffle is VRFConsumerBaseV2Plus{
         );
     }
 
+    // CEI: Checks, Effects, Interactions Pattern
     function fulfillRandomWords(uint256 requestId, uint256[] calldata randomWords) internal override {
+        /* Checks */
+        // require(...)
+        // conditionals
+
+
+
         // s_player = 10
         // random_number = 12
         // 12 % 10 = 2 <- s_players[2] winner
 
+        /* Effect (Internal Contract State) */
         // Using module operator (%), we can get a number between 0 and 9
         uint256 indexOfWinner = randomWords[0] % s_players.length;
         address payable recentWinner = s_players[indexOfWinner];
@@ -146,14 +154,14 @@ contract Raffle is VRFConsumerBaseV2Plus{
         s_raffleState = RaffleState.OPEN;
         s_players = new address payable[](0); // reset s_players to an empty array
         s_lastTimeStamp = block.timestamp; // restart lastTimeStamp
+        emit WinnerPicked(s_recentWinner);
 
+        /* Interactions (External Contract Interactions) */
         // Method to pay winner
         (bool success,) = recentWinner.call{value: address(this).balance}("");
         if(!success){
             revert Raffle__TransferFailed();
         }
-
-        emit WinnerPicked(s_recentWinner);
     }
 
     /* Getter Functions */
