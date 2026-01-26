@@ -82,7 +82,7 @@ contract RaffleTest is Test{
         raffle.enterRaffle{value: entranceFee}();
         vm.warp(block.timestamp + interval + 1);
         vm.roll(block.number + 1);
-        raffle.performUpkeep(""); // <- This is continue failing because we don't have a consumer yet
+        raffle.performUpkeep("");
 
         // Act / Assert
         vm.expectRevert(Raffle.Raffle__RaffleNotOpen.selector);
@@ -100,6 +100,21 @@ contract RaffleTest is Test{
 
         // Act
         (bool upkeepNeeded,) = raffle.checkUpkeep("");
+        // Assert
+        assert(!upkeepNeeded);
+    }
+
+    function testCheckUpkeepReturnsFalseIfRaffleIsntOpen() public {
+        // Arrange
+        vm.prank(PLAYER);
+        raffle.enterRaffle{value: entranceFee}();
+        vm.warp(block.timestamp + interval + 1);
+        vm.roll(block.number + 1);
+        raffle.performUpkeep("");
+
+        // Act
+        (bool upkeepNeeded,) = raffle.checkUpkeep("");
+
         // Assert
         assert(!upkeepNeeded);
     }
