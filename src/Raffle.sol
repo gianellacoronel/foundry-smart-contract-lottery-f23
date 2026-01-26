@@ -39,7 +39,7 @@ contract Raffle is VRFConsumerBaseV2Plus{
     error Raffle__SendMoreToEnterRaffle();
     error Raffle__TransferFailed();
     error Raffle__RaffleNotOpen();
-    error Raffle__UpkeepNotNeeded(uint256 balrnce, uint256 playersLength, uint256 raffleState);
+    error Raffle__UpkeepNotNeeded(uint256 balance, uint256 playersLength, uint256 raffleState);
 
     /* Type Declarations */
     /* Enum */
@@ -193,5 +193,9 @@ contract Raffle is VRFConsumerBaseV2Plus{
     /* Getter Functions */
     function getEntranceFee() external view returns(uint256){
         return i_entranceFee;
+    }
+
+    function getRaffleState() external view returns(RaffleState){
+        return s_raffleState;
     }
 }
