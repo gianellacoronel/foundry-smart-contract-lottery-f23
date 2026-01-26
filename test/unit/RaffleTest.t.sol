@@ -76,7 +76,7 @@ contract RaffleTest is Test{
         raffle.enterRaffle{value: entranceFee}();
         vm.warp(block.timestamp + interval + 1);
         vm.roll(block.number + 1);
-        raffle.performUpkeep("");
+        raffle.performUpkeep(""); // <- This is continue failing because we don't have a consumer yet
 
         // Act / Assert
         vm.expectRevert(Raffle.Raffle__RaffleNotOpen.selector);
