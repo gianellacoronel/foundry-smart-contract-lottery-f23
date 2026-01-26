@@ -30,6 +30,9 @@ contract RaffleTest is Test{
         gasLane = config.gasLane;
         callbackGasLimit = config.callbackGasLimit;
         subscriptionId = config.subscriptionId;
+
+        // Fund PLAYER
+        vm.deal(PLAYER, STARTING_PLAYER_BALANCE);
     }
 
     function testRaffleInitializesInOpenState() public view {
@@ -39,8 +42,18 @@ contract RaffleTest is Test{
     function testRaffleRevertsWhenYouDontPayEnough() public {
         // Arrange
         vm.prank(PLAYER);
-        // Act/Assert
+        // Act/Asset
         vm.expectRevert(Raffle.Raffle__SendMoreToEnterRaffle.selector);
         raffle.enterRaffle();
+    }
+
+    function testRaffleRecordsPlayersWhenTheyEnter() public {
+        // Arrange
+        vm.prank(PLAYER);
+        // Act
+        raffle.enterRaffle{value: entranceFee}();
+        // Asset
+        address playerRecorded = raffle.getPlayer(0);
+        assert(playerRecorded == PLAYER);
     }
 }
