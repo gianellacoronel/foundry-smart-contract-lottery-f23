@@ -20,6 +20,9 @@ contract RaffleTest is Test{
     address public PLAYER = makeAddr("player");
     uint256 public constant STARTING_PLAYER_BALANCE = 10 ether;
 
+    /*//////////////////////////////////////////////////////////////
+                                     EVENTS
+    //////////////////////////////////////////////////////////////*/
     event RaffleEntered(address indexed player);
     event WinnerPicked(address indexed winner);
 
@@ -42,6 +45,9 @@ contract RaffleTest is Test{
         assert(raffle.getRaffleState() == Raffle.RaffleState.OPEN);
     }
 
+    /*//////////////////////////////////////////////////////////////
+                              ENTER RAFFLE
+    //////////////////////////////////////////////////////////////*/
     function testRaffleRevertsWhenYouDontPayEnough() public {
         // Arrange
         vm.prank(PLAYER);
@@ -82,5 +88,19 @@ contract RaffleTest is Test{
         vm.expectRevert(Raffle.Raffle__RaffleNotOpen.selector);
         vm.prank(PLAYER);
         raffle.enterRaffle{value: entranceFee}();
+    }
+
+    /*//////////////////////////////////////////////////////////////
+                              CHECKUPKEEP
+    //////////////////////////////////////////////////////////////*/
+    function testCheckUpkeepReturnsFalseIfItHasNoBalance() public {
+        // Arrange
+        vm.warp(block.timestamp + interval + 1);
+        vm.roll(block.number + 1);
+
+        // Act
+        (bool upkeepNeeded,) = raffle.checkUpkeep("");
+        // Assert
+        assert(!upkeepNeeded);
     }
 }
