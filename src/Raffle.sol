@@ -65,6 +65,7 @@ contract Raffle is VRFConsumerBaseV2Plus{
     /* Events */
     event RaffleEntered(address indexed player);
     event WinnerPicked(address indexed winner);
+    event RequestedRaffleWinner(uint256 indexed requestId);
 
     constructor(uint256 entranceFee, uint256 interval, address vrfCoordinator, bytes32 gasLane, uint256 subscriptionId, uint32 callbackGasLimit)
         VRFConsumerBaseV2Plus(vrfCoordinator){
@@ -144,7 +145,7 @@ contract Raffle is VRFConsumerBaseV2Plus{
         // Get our random number
         // 1. Request RNG (Random Number Generator)
         // 2. Get RNG
-        s_vrfCoordinator.requestRandomWords(
+        uint256 requestId = s_vrfCoordinator.requestRandomWords(
           VRFV2PlusClient.RandomWordsRequest({
                     keyHash: i_keyHash,
                     subId: i_subscriptionId,
@@ -157,6 +158,8 @@ contract Raffle is VRFConsumerBaseV2Plus{
                 )
             })
         );
+
+        emit RequestedRaffleWinner(requestId); // This is redundant because vrfCoordinator already has an event emitter that includes requestId
     }
 
     // CEI: Checks, Effects, Interactions Pattern
