@@ -118,4 +118,18 @@ contract RaffleTest is Test{
         // Assert
         assert(!upkeepNeeded);
     }
+
+    /*//////////////////////////////////////////////////////////////
+                              PERFOM UPKEEP
+    //////////////////////////////////////////////////////////////*/
+    function testPerformUpkeepCanOnlyRunIfCheckUpkeepIsTrue() public {
+        // Arrange
+        vm.prank(PLAYER);
+        raffle.enterRaffle{value: entranceFee}();
+        vm.warp(block.timestamp + interval + 1);
+        vm.roll(block.number + 1);
+
+        // Act / Assert
+        raffle.performUpkeep("");
+    }
 }
