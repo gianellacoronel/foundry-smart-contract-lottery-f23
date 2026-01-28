@@ -27,6 +27,7 @@ contract HelperConfig is CodeConstants, Script {
         uint32 callbackGasLimit;
         uint256 subscriptionId;
         address link;
+        address account;
     }
 
     NetworkConfig public localNetworkConfig;
@@ -58,6 +59,7 @@ contract HelperConfig is CodeConstants, Script {
             ,callbackGasLimit: 500000 //500,000 gas
             ,subscriptionId: 0
             ,link: 0x779877A7B0D9E8603169DdbD7836e478b4624789
+            ,account: 0x0fb249b159543BCcE6f1f649DAdfe2f31a4a80D9
         });
     }
 
@@ -85,6 +87,7 @@ contract HelperConfig is CodeConstants, Script {
             ,callbackGasLimit: 500000 //500,000 gas
             ,subscriptionId: 0 // might have to fix this
             ,link: address(linkToken)
+            ,account: 0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38
         });
 
         return localNetworkConfig;
